@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8176AF3C19585D6A007B53F1 /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8176AF3B19585D6A007B53F1 /* Line.swift */; };
+		8176AF3E19585DC0007B53F1 /* DrawView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8176AF3D19585DC0007B53F1 /* DrawView.swift */; };
+		8176AF4019585DE5007B53F1 /* DrawViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8176AF3F19585DE5007B53F1 /* DrawViewController.swift */; };
 		81A995C719585AD5002B9930 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A995C619585AD5002B9930 /* AppDelegate.swift */; };
 		81A995C919585AD5002B9930 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 81A995C819585AD5002B9930 /* Images.xcassets */; };
 		81A995D519585AD5002B9930 /* TouchTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A995D419585AD5002B9930 /* TouchTrackerTests.swift */; };
@@ -23,6 +26,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8176AF3B19585D6A007B53F1 /* Line.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Line.swift; sourceTree = "<group>"; };
+		8176AF3D19585DC0007B53F1 /* DrawView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DrawView.swift; sourceTree = "<group>"; };
+		8176AF3F19585DE5007B53F1 /* DrawViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DrawViewController.swift; sourceTree = "<group>"; };
 		81A995C119585AD5002B9930 /* TouchTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TouchTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		81A995C519585AD5002B9930 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		81A995C619585AD5002B9930 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -72,6 +78,9 @@
 			isa = PBXGroup;
 			children = (
 				81A995C619585AD5002B9930 /* AppDelegate.swift */,
+				8176AF3F19585DE5007B53F1 /* DrawViewController.swift */,
+				8176AF3D19585DC0007B53F1 /* DrawView.swift */,
+				8176AF3B19585D6A007B53F1 /* Line.swift */,
 				81A995C819585AD5002B9930 /* Images.xcassets */,
 				81A995C419585AD5002B9930 /* Supporting Files */,
 			);
@@ -200,7 +209,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8176AF4019585DE5007B53F1 /* DrawViewController.swift in Sources */,
 				81A995C719585AD5002B9930 /* AppDelegate.swift in Sources */,
+				8176AF3C19585D6A007B53F1 /* Line.swift in Sources */,
+				8176AF3E19585DC0007B53F1 /* DrawView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -379,6 +391,7 @@
 				81A995DA19585AD5002B9930 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		81A995DB19585AD5002B9930 /* Build configuration list for PBXNativeTarget "TouchTrackerTests" */ = {
 			isa = XCConfigurationList;
@@ -387,6 +400,7 @@
 				81A995DD19585AD5002B9930 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
