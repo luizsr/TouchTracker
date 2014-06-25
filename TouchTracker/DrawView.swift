@@ -107,7 +107,8 @@ class DrawView: UIView {
                 let y = start.y + t * (end.y - start.y)
                 
                 // If the tapped point is within 20 points, return this line
-                if (hypotf(x - p.x, y - p.y) < 20.0) {
+                let distance = Double(hypot(CDouble(x) - CDouble(p.x), CDouble(y) - CDouble(p.y)))
+                if (distance < 20.0) {
                     println("DrawView: found a line to select")
                     return line
                 }

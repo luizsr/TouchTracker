@@ -18,7 +18,7 @@ class Line: NSObject {
     // Silver Challenge fxns
     var angleInDegrees: Double {
         // returns the line's bearing from 0-360 degrees
-        let radianBearing = CDouble(atan2f(end.y - begin.y, end.x - begin.x))
+        let radianBearing = CDouble(atan2(Double(end.y) - Double(begin.y), Double(end.x) - Double(begin.x)))
         var degreeBearing = radianBearing * (CDouble(180.0) / M_PI)
         degreeBearing = (degreeBearing > 0.0 ? degreeBearing : (360.0 + degreeBearing))
         return Double(degreeBearing)
