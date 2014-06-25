@@ -15,4 +15,12 @@ class DrawViewController: UIViewController {
         super.loadView()
         view = DrawView(frame: CGRectZero)
     }
+    
+    override func shouldAutorotateToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation) -> Bool {
+        
+        if interfaceOrientation == UIInterfaceOrientation.Portrait {
+            return true
+        }
+        return false
+    }
 }
