@@ -9,23 +9,70 @@
 import UIKit
 
 class DrawView: UIView {
-   
+    
+    var colorPanel: ColorPanelView?
+    var selectedColor: UIColor?
+    var moveRecognizer = UIPanGestureRecognizer()
     var linesInProgress: Dictionary<NSValue, Line> = Dictionary()
     var finishedLines: Array<Line> = Line[]()
     var circlesInProgress: Dictionary<NSValue, (NSValue, CGRect)> = Dictionary()
     var finishedCircles: Array<CGRect> = CGRect[]()
+    weak var selectedLine: Line?
     
     init(frame: CGRect) {
         println("DrawView: init")
         super.init(frame: frame)
-        backgroundColor = UIColor.grayColor()
+        backgroundColor = UIColor.whiteColor()
         multipleTouchEnabled = true
+        
+        let doubleTapRecognizer = UITapGestureRecognizer(target: self, action: "doubleTap:")
+        doubleTapRecognizer.numberOfTapsRequired = 2
+        // Stops from drawing a line/circle on accident
+        doubleTapRecognizer.delaysTouchesBegan = true
+        addGestureRecognizer(doubleTapRecognizer)
+        
+        let tapRecognizer = UITapGestureRecognizer(target: self, action: "tap:")
+        // Stops from drawing a line/circle on accident
+        tapRecognizer.delaysTouchesBegan = true
+        // tapRecognizer must wait for Double Tap recognizer to fail before it can
+        // assume that a single tap isn't just the first of a double tap
+        tapRecognizer.requireGestureRecognizerToFail(doubleTapRecognizer) //
+        addGestureRecognizer(tapRecognizer)
+        
+        // By default a touch must be held for 0.5 seconds to be a long press
+        let pressRecognizer = UILongPressGestureRecognizer(target: self, action: "longPress:")
+        addGestureRecognizer(pressRecognizer)
+        
+        moveRecognizer = UIPanGestureRecognizer(target: self, action: "moveLine:")
+        moveRecognizer.delegate = self
+        // Makes it so users can still draw lines
+        // The gesture that the pan recognizer recognizes is the same kind of touch
+        // that the view handles to draw lines using the UIResponder methods. When
+        // the below is set to "false", touches the gesture recognizer recognizes
+        // also get delivered to the view via the UIResponder methods, allowing
+        // the lines to still be drawn
+        moveRecognizer.cancelsTouchesInView = false
+        addGestureRecognizer(moveRecognizer)
+        
+        let tripleSwipeRecognizer = UISwipeGestureRecognizer(target: self, action: "tripleSwipe:")
+        tripleSwipeRecognizer.numberOfTouchesRequired = 3
+        tripleSwipeRecognizer.direction = UISwipeGestureRecognizerDirection.Up
+        addGestureRecognizer(tripleSwipeRecognizer)
+    }
+    
+    
+    
+    // Custom view classes that need to become the first responder must override
+    // this method
+    override func canBecomeFirstResponder() -> Bool {
+        return true
     }
     
     func strokeLine(line: Line) {
-        println("DrawView: strokeLine")
+        //println("DrawView: strokeLine")
         let bp = UIBezierPath()
-        bp.lineWidth = 10
+        bp.lineWidth = CGFloat(line.thickness)
+        //println("drawing line with thickness:\(line.thickness)")
         bp.lineCapStyle = kCGLineCapRound
         
         bp.moveToPoint(line.begin)
@@ -34,7 +81,7 @@ class DrawView: UIView {
     }
     
     func strokeCircle(circleRect: CGRect) {
-        println("DrawView: strokeCircle")
+        //println("DrawView: strokeCircle")
         let bp = UIBezierPath()
         bp.lineWidth = 10
         bp.lineCapStyle = kCGLineCapRound
@@ -44,19 +91,82 @@ class DrawView: UIView {
         
         bp.moveToPoint(CGPointMake(circleCenter.x + circleRadius, circleCenter.y))
         bp.addArcWithCenter(circleCenter, radius: circleRadius, startAngle: 0, endAngle: CGFloat(M_PI * 2.0), clockwise: true)
-        println("drawing circle... x:\(circleCenter.x)   y:\(circleCenter.y)   radius:\(circleRadius)")
+        //println("drawing circle... x:\(circleCenter.x)   y:\(circleCenter.y)   radius:\(circleRadius)")
         bp.stroke()
     }
     
+    func lineAtPoint(p: CGPoint) -> Line? {
+        // Find a line close to p
+        for line in finishedLines {
+            let start = line.begin
+            let end = line.end
+            
+            // Check a few points on the line
+            for var t: CGFloat = 0.0; t <= 1.0; t += 0.05 {
+                let x = start.x + t * (end.x - start.x)
+                let y = start.y + t * (end.y - start.y)
+                
+                // If the tapped point is within 20 points, return this line
+                if (hypotf(x - p.x, y - p.y) < 20.0) {
+                    println("DrawView: found a line to select")
+                    return line
+                }
+            }
+        }
+        // If nothing is close enough to the tapped point, then no line was selected
+        return nil
+    }
+    
+    func moveLine(gr: UIPanGestureRecognizer) {
+        // If a line isn't selected or the menu is visible, don't do anything here
+        if !selectedLine || UIMenuController.sharedMenuController().menuVisible == true {
+            return
+        }
+        
+        // When the pan recognizer changes its position...
+        if gr.state == UIGestureRecognizerState.Changed {
+            // How far has the pan moved?
+            let translation = gr.translationInView(self)
+            
+            // Add the translation to the current beginning and end points of the line
+            var begin = selectedLine!.begin
+            var end = selectedLine!.end
+            begin.x += translation.x
+            begin.y += translation.y
+            end.x += translation.x
+            end.y += translation.y
+            
+            // Set the new beginning and end points of the line
+            selectedLine!.begin = begin
+            selectedLine!.end = end
+            
+            // Redraw the screen
+            setNeedsDisplay()
+            
+            // Set the translation back to the zero point after every time it reports a change
+            // Stops the line from being moved WAY to far
+            gr.setTranslation(CGPointZero, inView: self)
+        }
+    }
+    
+    func deleteLine(sender: AnyObject) {
+        println("DrawView: deleteLine")
+        // Remove the selected line from the list of finishedLines
+        finishedLines.removeAtIndex(finishedLines.indexOf(object: selectedLine!))
+        selectedLine = nil
+        // Redraw everything
+        setNeedsDisplay()
+    }
+    
     override func drawRect(rect: CGRect) {
-        println("DrawView: drawRect")
+        //println("DrawView: drawRect")
        
         UIColor.blackColor().set()
         for circle in finishedCircles {
             strokeCircle(circle)
         }
         
-        // Draw finished lines in the color based on their angle (defaults to black)
+        // If the Draw finished lines in the color based on their angle (defaults to black)
         for line in finishedLines {
             line.color.set()
             strokeLine(line)
@@ -72,8 +182,133 @@ class DrawView: UIView {
         for line in linesInProgress.values {
             strokeLine(line)
         }
+        
+        // The selected line will be in Cyan
+        if selectedLine {
+            UIColor.cyanColor().set()
+            strokeLine(selectedLine!)
+        }
     }
 }
+
+
+extension DrawView {
+    // MARK: gesture events
+    
+    func tripleSwipe(gr: UISwipeGestureRecognizer) {
+        println("Draw View: recognized triple swipe up")
+        
+        let w = bounds.width
+        let h = bounds.height
+        let cpWidth = w
+        let cpHeight = w / 2
+        let cpOriginX = 0
+        let cpOriginY = h - cpHeight
+        
+        let cpOffScreenFrame = CGRectMake(0, h, cpWidth, cpHeight)
+        let cpOnScreenFrame = CGRectMake(0, cpOriginY, cpWidth, cpHeight)
+        
+        colorPanel = ColorPanelView(frame: cpOffScreenFrame, delegate: self)
+        addSubview(colorPanel)
+        
+        weak var cp = colorPanel
+        UIView.animateWithDuration(0.2, delay: 0.0, options: UIViewAnimationOptions.CurveEaseOut, animations: { cp!.frame = cpOnScreenFrame }, completion: nil)
+    }
+    
+    func tap(gr: UIGestureRecognizer) {
+        println("Draw View: Recognized Tap")
+        
+        // If the color panel is here, get rid of it and then do nothing
+        if colorPanel {
+            let w = bounds.width
+            let h = bounds.height
+            let cpWidth = w
+            let cpHeight = w / 2
+            let cpOffScreenFrame = CGRectMake(0, h, cpWidth, cpHeight)
+            
+            weak var cp = colorPanel
+            UIView.animateWithDuration(0.2, delay: 0.0, options: UIViewAnimationOptions.CurveEaseIn, animations: { cp!.frame = cpOffScreenFrame }, completion: nil)
+
+            delayOnMainQueueFor(numberOfSeconds: 0.5, action: {
+                cp!.removeFromSuperview()
+            })
+            colorPanel = nil
+            return
+        }
+        
+        // Try finding a line near the point that was tapped. An optional Line
+        // value will be returned to selectedLine, which drawInRect will draw
+        // in Cyan if a line (and not nil) is returned
+        let point = gr.locationInView(self)
+        selectedLine = lineAtPoint(point)
+        
+        if selectedLine {
+            // Make this view the target of menu item action messages
+            becomeFirstResponder()
+            
+            // Grab the menu controller
+            let menu = UIMenuController.sharedMenuController()
+            
+            // Create a new "Delete" UIMenuItem
+            let deleteItem = UIMenuItem(title: "Delete", action: "deleteLine:")
+            
+            menu.menuItems = [deleteItem]
+            
+            // Tell the menu where it should come from and show it
+            menu.setTargetRect(CGRectMake(point.x, point.y, 2, 2), inView: self)
+            menu.setMenuVisible(true, animated: true)
+        } else {
+            // Hide the menu if no line is selected
+            UIMenuController.sharedMenuController().setMenuVisible(false, animated: true)
+        }
+        
+        setNeedsDisplay()
+    }
+    
+    func doubleTap(gr: UIGestureRecognizer) {
+        println("DrawView: Recognized Double Tap")
+        linesInProgress.removeAll(keepCapacity: false)
+        circlesInProgress.removeAll(keepCapacity: false)
+        finishedLines.removeAll(keepCapacity: false)
+        finishedCircles.removeAll(keepCapacity: false)
+        setNeedsDisplay()
+    }
+    
+    func longPress(gr: UIGestureRecognizer) {
+        if gr.state == UIGestureRecognizerState.Began {
+            println("DrawView: longPress has begun")
+            let point = gr.locationInView(self)
+            selectedLine = lineAtPoint(point)
+            
+            if selectedLine {
+                linesInProgress.removeAll(keepCapacity: false)
+            }
+        } else if gr.state == UIGestureRecognizerState.Ended {
+            println("DrawView: longPress has ended")
+            selectedLine = nil
+        }
+        
+        setNeedsDisplay()
+    }
+}
+
+
+extension DrawView: UIGestureRecognizerDelegate {
+    
+    // called when the recognition of one of gestureRecognizer or otherGestureRecognizer would be blocked by the other
+    // return YES to allow both to recognize simultaneously. the default implementation returns NO (by default no two gestures can be recognized simultaneously)
+    func gestureRecognizer(gestureRecognizer: UIGestureRecognizer!, shouldRecognizeSimultaneouslyWithGestureRecognizer otherGestureRecognizer: UIGestureRecognizer!) -> Bool {
+        // When the user begins a long press, the UIPanGestureRecognizer will be allowed to
+        // keep track of that touch/finger too
+        // Allows the pan recognizer to transition to its Begin state, rather than
+        // never hetting there because of the long press recognizer starting
+        if gestureRecognizer == moveRecognizer {
+            return true
+        }
+        return false
+    }
+}
+
 
 extension DrawView {
     // MARK: touch events
@@ -81,8 +316,33 @@ extension DrawView {
     override func touchesBegan(touches: NSSet!, withEvent event: UIEvent!) {
         println("DrawView: touchesBegan")
         
+        /*
+        // If the color panel is here, get rid of it
+        if colorPanel {
+            let w = bounds.width
+            let h = bounds.height
+            let cpWidth = w
+            let cpHeight = w / 2
+            let cpOffScreenFrame = CGRectMake(0, h, cpWidth, cpHeight)
+            
+            weak var cp = colorPanel
+            UIView.animateWithDuration(0.2, delay: 0.0, options: UIViewAnimationOptions.CurveEaseIn, animations: { cp!.frame = cpOffScreenFrame }, completion: nil)
+            
+            delayOnMainQueueFor(numberOfSeconds: 0.5, action: {
+                cp!.removeFromSuperview()
+                })
+            colorPanel = nil
+        }
+        */
+        
+        // If the menu is visible, don't do anything here
+        if UIMenuController.sharedMenuController().menuVisible == true {
+            return
+        }
+        
         // If there are two active touches, draw a circle. Otherwise draw a line
         if event.touchesForView(self).count == 2 {
+            println("DrawView: Recognized two active touches; start a Circle")
             let touchesArray = event.touchesForView(self).allObjects as UITouch[]
             
             let touch1 = touchesArray[0]
@@ -106,6 +366,7 @@ extension DrawView {
             linesInProgress.removeValueForKey(touch2Value)
             
         } else if event.touchesForView(self).count == 1 {
+            println("DrawView: Recognized one active touch; start a Line")
             // It's possible that more than one touch can begin at the same time,
             // although typically touches begin at different times and the DrawView
             // will get multiple touchesBegan:withEvent: messages
@@ -126,7 +387,7 @@ extension DrawView {
     }
     
     override func touchesMoved(touches: NSSet!, withEvent event: UIEvent!) {
-        println("DrawView: touchesMoved")
+        //println("DrawView: touchesMoved")
         
         // If there are two active touches, draw a circle. Otherwise draw a line
         if event.touchesForView(self).count == 2 {
@@ -137,7 +398,7 @@ extension DrawView {
             let t2Point = touch2.locationInView(self)
             
             let circleRectSize = CGSizeMake(abs(t2Point.x - t1Point.x), abs(t2Point.y - t1Point.y))
-            println("width:\(circleRectSize.width)   height:\(circleRectSize.height)")
+            //println("width:\(circleRectSize.width)   height:\(circleRectSize.height)")
             let circleRect = CGRect(origin: t1Point, size: circleRectSize)
             
             let touch1Key = NSValue(nonretainedObject: touch1)
@@ -155,7 +416,16 @@ extension DrawView {
                 let key = NSValue(nonretainedObject: touch)
                 let line = linesInProgress[key]
                 
-                if line { line!.end = touch.locationInView(self) }
+                if line {
+                    let vVector = moveRecognizer.velocityInView(self)
+                    let velocitySquared = (vVector.x * vVector.x) + (vVector.y * vVector.y)
+                    let velocity = sqrt(CDouble(velocitySquared))
+                    //println(velocity)
+                    line!.setThicknessFromVelocity(velocity)
+                    //println("line thickness:\(line!.thickness)")
+                    
+                    line!.end = touch.locationInView(self)
+                }
             }
         }
 
@@ -189,6 +459,11 @@ extension DrawView {
                 let line = linesInProgress[key]
                 
                 if line {
+                    if selectedColor {
+                        line!.color = selectedColor
+                    } else {
+                        line!.setColorFromAngle()
+                    }
                     finishedLines.append(line!)
                     linesInProgress.removeValueForKey(key)
                 }
@@ -209,6 +484,15 @@ extension DrawView {
         }
         
         setNeedsDisplay()
+    }
+}
+
+
+extension DrawView: ColorPanelDelegate {
+    
+    func changeColor(sender: UIButton) {
+        println("DrawView: Change color")
+        selectedColor = sender.backgroundColor
     }
 }
 

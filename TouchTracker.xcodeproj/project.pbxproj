@@ -13,6 +13,9 @@
 		81A995C719585AD5002B9930 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A995C619585AD5002B9930 /* AppDelegate.swift */; };
 		81A995C919585AD5002B9930 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 81A995C819585AD5002B9930 /* Images.xcassets */; };
 		81A995D519585AD5002B9930 /* TouchTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A995D419585AD5002B9930 /* TouchTrackerTests.swift */; };
+		81E98F83195A2B8D00DC4D22 /* ColorPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81E98F82195A2B8D00DC4D22 /* ColorPanelView.swift */; };
+		81E98F85195A301100DC4D22 /* View.xib in Resources */ = {isa = PBXBuildFile; fileRef = 81E98F84195A301100DC4D22 /* View.xib */; };
+		81E98F89195A3C5F00DC4D22 /* SwiftUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81E98F88195A3C5F00DC4D22 /* SwiftUtilities.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +39,9 @@
 		81A995CE19585AD5002B9930 /* TouchTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TouchTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		81A995D319585AD5002B9930 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		81A995D419585AD5002B9930 /* TouchTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchTrackerTests.swift; sourceTree = "<group>"; };
+		81E98F82195A2B8D00DC4D22 /* ColorPanelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ColorPanelView.swift; path = ../ColorPanelView.swift; sourceTree = "<group>"; };
+		81E98F84195A301100DC4D22 /* View.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = View.xib; sourceTree = "<group>"; };
+		81E98F88195A3C5F00DC4D22 /* SwiftUtilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUtilities.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,6 +65,8 @@
 		81A995B819585AD5002B9930 = {
 			isa = PBXGroup;
 			children = (
+				81E98F88195A3C5F00DC4D22 /* SwiftUtilities.swift */,
+				81E98F84195A301100DC4D22 /* View.xib */,
 				81A995C319585AD5002B9930 /* TouchTracker */,
 				81A995D119585AD5002B9930 /* TouchTrackerTests */,
 				81A995C219585AD5002B9930 /* Products */,
@@ -80,6 +88,7 @@
 				81A995C619585AD5002B9930 /* AppDelegate.swift */,
 				8176AF3F19585DE5007B53F1 /* DrawViewController.swift */,
 				8176AF3D19585DC0007B53F1 /* DrawView.swift */,
+				81E98F82195A2B8D00DC4D22 /* ColorPanelView.swift */,
 				8176AF3B19585D6A007B53F1 /* Line.swift */,
 				81A995C819585AD5002B9930 /* Images.xcassets */,
 				81A995C419585AD5002B9930 /* Supporting Files */,
@@ -191,6 +200,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				81E98F85195A301100DC4D22 /* View.xib in Resources */,
 				81A995C919585AD5002B9930 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -211,7 +221,9 @@
 			files = (
 				8176AF4019585DE5007B53F1 /* DrawViewController.swift in Sources */,
 				81A995C719585AD5002B9930 /* AppDelegate.swift in Sources */,
+				81E98F89195A3C5F00DC4D22 /* SwiftUtilities.swift in Sources */,
 				8176AF3C19585D6A007B53F1 /* Line.swift in Sources */,
+				81E98F83195A2B8D00DC4D22 /* ColorPanelView.swift in Sources */,
 				8176AF3E19585DC0007B53F1 /* DrawView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
